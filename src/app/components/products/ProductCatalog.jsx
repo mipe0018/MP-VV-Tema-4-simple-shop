@@ -10,6 +10,7 @@ import ProductCard from "./ProductCard";
 export default function ProductCatalog({
   products = [],
   searchTerm = "",
+  children,
 }) {
   // HIGHEST PRODUCT PRICE
   const highestPrice = Math.ceil(
@@ -47,59 +48,73 @@ export default function ProductCatalog({
     return new Fuse(products, {
       keys: ["title", "description", "category"],
       threshold: 0.3,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
     });
   }, [products]);
 
   // SEARCH PRODUCTS
-  const searchedProducts = searchTerm.trim()
-    ? fuse.search(searchTerm).map((result) => result.item)
-    : products;
+  const searchedProducts = useMemo(() => {
+    const query = searchTerm.trim();
+
+    if (!query) {
+      return products;
+    }
+
+    return fuse.search(query).map((result) => result.item);
+  }, [searchTerm, fuse, products]);
 
   // FILTER PRODUCTS
-  const filteredProducts = searchedProducts.filter((product) => {
-    const price = Number(product.price);
-    const rating = Number(product.rating);
-    const discount = Number(product.discountPercentage);
+  const filteredProducts = useMemo(() => {
+    return searchedProducts.filter((product) => {
+      const price = Number(product.price);
+      const rating = Number(product.rating);
+      const discount = Number(product.discountPercentage);
 
-    const matchesCategory =
-      product.category === "groceries" &&
-      (selectedCategory === "all" ||
-        product.category === selectedCategory);
+      const matchesCategory =
+        product.category === "groceries" &&
+        (selectedCategory === "all" ||
+          product.category === selectedCategory);
 
-    const matchesPrice = price <= maxPrice;
+      const matchesPrice = price <= maxPrice;
+      const matchesRating = rating >= minRating;
 
-    const matchesRating = rating >= minRating;
+      const matchesDiscount =
+        !onlyDiscounted ||
+        (Number.isFinite(discount) &&
+          Math.round(discount) > 0 &&
+          discount < 100);
 
-    const matchesDiscount =
-      !onlyDiscounted ||
-      (Number.isFinite(discount) &&
-        Math.round(discount) > 0 &&
-        discount < 100);
-
-    return (
-      matchesCategory &&
-      matchesPrice &&
-      matchesRating &&
-      matchesDiscount
-    );
-  });
+      return (
+        matchesCategory &&
+        matchesPrice &&
+        matchesRating &&
+        matchesDiscount
+      );
+    });
+  }, [
+    searchedProducts,
+    maxPrice,
+    minRating,
+    selectedCategory,
+    onlyDiscounted,
+  ]);
 
   // SORT PRODUCTS
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-
-      case "price-high":
-        return b.price - a.price;
-
-      case "rating":
-        return b.rating - a.rating;
-
-      default:
-        return 0;
-    }
-  });
+  const sortedProducts = useMemo(() => {
+    return [...filteredProducts].sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return a.price - b.price;
+        case "price-high":
+          return b.price - a.price;
+        case "rating":
+          return b.rating - a.rating;
+        default:
+          return 0;
+      }
+    });
+  }, [filteredProducts, sortBy]);
 
   return (
     <section className="flex flex-col gap-6 md:flex-row">
@@ -126,13 +141,24 @@ export default function ProductCatalog({
       {/* PRODUCT CATALOG */}
       <div className="min-w-0 flex-1">
 
+        {/* PRODUCT HERO */}
+        {children && (
+          <div className="mb-8 w-full">
+            {children}
+          </div>
+        )}
+
         {/* PRODUCT COUNT */}
-        <div className="mb-4 flex items-center justify-between">
+        <div
+          id="products"
+          className="mb-4 flex items-center justify-between"
+        >
           <p className="text-sm text-text-secondary">
             Showing {sortedProducts.length} products
           </p>
         </div>
 
+        {/* PRODUCT GRID */}
         {sortedProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {sortedProducts.map((product) => (
@@ -149,7 +175,7 @@ export default function ProductCatalog({
             </h3>
 
             <p className="mb-4 text-sm text-text-secondary">
-              Try changing your filters or search.
+              Try changing your search or filters.
             </p>
 
             <button

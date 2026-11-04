@@ -146,6 +146,7 @@ export default function Header() {
             name="search"
             placeholder="Search products..."
             aria-label="Search products"
+            autoComplete="off"
             className="
               w-full min-w-0
               bg-transparent text-sm text-foreground

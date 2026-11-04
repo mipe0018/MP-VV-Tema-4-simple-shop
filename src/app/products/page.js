@@ -20,14 +20,11 @@ export default async function ProductsPage({ searchParams }) {
   const params = await searchParams;
   const query = params?.search || "";
 
-  return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <ProductCatalog
-        products={products}
-        searchTerm={query}
-      >
-        <ProductHero />
-      </ProductCatalog>
-    </main>
+return (
+  <main className="mx-auto max-w-7xl px-6 py-10">
+    <ProductCatalog products={products} searchTerm={query}>
+  <ProductHero />
+</ProductCatalog>
+  </main>
   );
 }
