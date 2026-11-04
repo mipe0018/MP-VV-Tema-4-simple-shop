@@ -1,9 +1,5 @@
-@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "tailwindcss";
 
 /* ========================================
    1. COLOR PALETTE
@@ -17,7 +13,7 @@
 
   /* Neutral colors */
   --color-white: #FFFFFF;
-  --color-black: #000;
+  --color-black: #000000;
   --color-grey: #A6A6A6;
 
   /* Background colors */
@@ -34,14 +30,12 @@
   /* Transparent colors */
   --color-primary-50: #FF995E80;
   --color-black-50: #19191980;
-}
 
 
-/* ========================================
-   TYPOGRAPHY
-======================================== */
+  /* ========================================
+     2. TYPOGRAPHY
+  ======================================== */
 
-:root {
   /* Font families */
   --heading-font: var(--font-heading);
   --body-font: var(--font-body);
@@ -68,15 +62,62 @@
   --leading-relaxed: 1.7;
 }
 
-/* Global typography */
+
+/* ========================================
+   3. TAILWIND THEME
+======================================== */
+
+@theme inline {
+  /* Brand colors */
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+
+  /* Neutral colors */
+  --color-white: var(--color-white);
+  --color-black: var(--color-black);
+  --color-grey: var(--color-grey);
+
+  /* Background colors */
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+
+  /* Text colors */
+  --color-foreground: var(--foreground);
+  --color-text-secondary: var(--text-secondary);
+
+  /* Border colors */
+  --color-border: var(--border);
+
+  /* Typography */
+  --font-heading: var(--heading-font);
+  --font-body: var(--body-font);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+
+/* ========================================
+   4. GLOBAL TYPOGRAPHY
+======================================== */
+
 body {
+  background: var(--background);
+  color: var(--foreground);
+
   font-family: var(--body-font);
   font-size: var(--text-base);
   font-weight: var(--weight-regular);
   line-height: var(--leading-normal);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading-font);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-tight);
@@ -86,33 +127,17 @@ p {
   font-family: var(--body-font);
   line-height: var(--leading-relaxed);
 }
-/* ========================================
-   Light theme
-======================================== */
-@theme inline {
-  --color-primary: var(--color-primary);
-  --color-secondary: var(--color-secondary);
-  --color-accent: var(--color-accent);
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-border: var(--border);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 /* ========================================
-  DARK THEME
+   5. DARK THEME – TEMPORARILY DISABLED
 ======================================== */
+
+/*
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+*/
