@@ -6,7 +6,11 @@ import Link from "next/link";
 import { useCartStore } from "../../store/cartStore";
 import { useFavoritesStore } from "../../store/FavoritesStore";
 
-export default function ProductCard({ product, compact = false }) {
+export default function ProductCard({
+  product,
+  compact = false,
+  heroCard = false,
+}) {
   const [quantity, setQuantity] = useState(1);
 
   const addToCart = useCartStore((state) => state.addToCart);
@@ -34,11 +38,10 @@ export default function ProductCard({ product, compact = false }) {
     event.stopPropagation();
 
     addToCart(product, quantity);
-
-    // Nulstil mængdevælger efter tilføjelse
     setQuantity(1);
   };
 
+  // Tilføj eller fjern favorit
   const handleToggleFavorite = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -51,7 +54,7 @@ export default function ProductCard({ product, compact = false }) {
         group
         overflow-hidden
         rounded-xl
-        bg-background-card
+        ${heroCard ? "bg-white" : "bg-secondary/20"}
         border border-border
         shadow-sm
         transition-all duration-200
@@ -60,9 +63,9 @@ export default function ProductCard({ product, compact = false }) {
         ${compact ? "h-full" : ""}
       `}
     >
+      {/* PRODUCT IMAGE */}
       <div className="relative">
         <Link href={`/products/${product.id}`} className="block">
-          {/* PRODUCT IMAGE */}
           <div
             className={`
               overflow-hidden
@@ -95,18 +98,23 @@ export default function ProductCard({ product, compact = false }) {
           type="button"
           onClick={handleToggleFavorite}
           aria-label={
-            isFavorite ? "Remove from favorites" : "Add to favorites"
+            isFavorite
+              ? "Remove from favorites"
+              : "Add to favorites"
           }
           className="
             absolute right-3 top-3 z-10
             flex h-9 w-9 items-center justify-center
-            rounded-full bg-background-card shadow-md
-            transition-transform hover:scale-110
+            rounded-full bg-background shadow-md
+            transition-all duration-200
+            hover:scale-110 hover:bg-primary/10
           "
         >
           <span
             className={`text-xl ${
-              isFavorite ? "text-red-500" : "text-text-secondary"
+              isFavorite
+                ? "text-red-500"
+                : "text-text-secondary"
             }`}
           >
             {isFavorite ? "♥" : "♡"}
@@ -142,7 +150,7 @@ export default function ProductCard({ product, compact = false }) {
         </div>
       </Link>
 
-      {/* PRODUCT PRICE AND QUANTITY */}
+      {/* PRICE AND QUANTITY */}
       <div className="px-3 pb-3">
         <p
           className={`
@@ -154,7 +162,13 @@ export default function ProductCard({ product, compact = false }) {
         </p>
 
         {/* QUANTITY SELECTOR */}
-        <div className="mb-3 flex items-center justify-between rounded-lg border border-border p-1">
+        <div
+          className="
+            mb-3 flex items-center justify-between
+            rounded-lg border border-border
+            bg-background/50 p-1
+          "
+        >
           <span className="pl-2 text-xs text-text-secondary">
             Quantity
           </span>
@@ -167,16 +181,22 @@ export default function ProductCard({ product, compact = false }) {
               aria-label="Decrease quantity"
               className="
                 flex h-8 w-8 items-center justify-center
-                rounded-md bg-background-secondary
-                transition-colors hover:bg-secondary
-                disabled:cursor-not-allowed disabled:opacity-40
+                rounded-md bg-secondary/20
+                text-foreground
+                transition-colors
+                hover:bg-secondary/50
+                disabled:cursor-not-allowed
+                disabled:opacity-40
               "
             >
               −
             </button>
 
             <span
-              className="min-w-4 text-center text-sm font-semibold"
+              className="
+                min-w-4 text-center
+                text-sm font-semibold text-foreground
+              "
               aria-live="polite"
             >
               {quantity}
@@ -188,8 +208,10 @@ export default function ProductCard({ product, compact = false }) {
               aria-label="Increase quantity"
               className="
                 flex h-8 w-8 items-center justify-center
-                rounded-md bg-background-secondary
-                transition-colors hover:bg-secondary
+                rounded-md bg-secondary/20
+                text-foreground
+                transition-colors
+                hover:bg-secondary/50
               "
             >
               +
@@ -205,7 +227,9 @@ export default function ProductCard({ product, compact = false }) {
             w-full rounded-lg
             bg-foreground px-4 py-2
             text-sm font-semibold text-background
-            transition-colors hover:opacity-80
+            transition-all duration-200
+            hover:opacity-80
+            active:scale-[0.98]
           "
         >
           Add to cart
