@@ -1,119 +1,164 @@
 
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import Fuse from "fuse.js";
+
 import ProductFilters from "./ProductFilters";
 import ProductCard from "./ProductCard";
 
 export default function ProductCatalog({
   products = [],
-  query = "",
-  children,
+  searchTerm = "",
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-
-  // Kun produkter fra Groceries
-  const groceryProducts = useMemo(
-    () => products.filter((product) => product.category === "groceries"),
-    [products]
+  // HIGHEST PRODUCT PRICE
+  const highestPrice = Math.ceil(
+    Math.max(
+      0,
+      ...products
+        .filter((product) => product.category === "groceries")
+        .map((product) => Number(product.price) || 0)
+    )
   );
 
-  const highestPrice = Math.max(
-    ...groceryProducts.map((product) => product.price),
-    0
-  );
-
+  // FILTER STATES
   const [maxPrice, setMaxPrice] = useState(highestPrice);
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState("default");
   const [selectedCategory, setSelectedCategory] = useState("groceries");
+  const [onlyDiscounted, setOnlyDiscounted] = useState(false);
 
+  // UPDATE MAX PRICE WHEN PRODUCTS LOAD
   useEffect(() => {
     setMaxPrice(highestPrice);
   }, [highestPrice]);
 
-  // Søgning
-  const fuse = useMemo(
-    () =>
-      new Fuse(groceryProducts, {
-        keys: ["title", "description", "category"],
-        threshold: 0.35,
-      }),
-    [groceryProducts]
-  );
-
-  const searchResults = query.trim()
-    ? fuse.search(query).map((result) => result.item)
-    : groceryProducts;
-
-  // Filtrering
-  const filteredProducts = searchResults.filter((product) => {
-    const matchesCategory =
-      selectedCategory === "all" ||
-      product.category === selectedCategory;
-
-    const matchesPrice = product.price <= maxPrice;
-    const matchesRating = product.rating >= minRating;
-
-    return matchesCategory && matchesPrice && matchesRating;
-  });
-
-  // Sortering
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-low") return a.price - b.price;
-    if (sortBy === "price-high") return b.price - a.price;
-    if (sortBy === "rating") return b.rating - a.rating;
-
-    return 0;
-  });
-
-  // Nulstil alle filtre og søgning
+  // RESET FILTERS
   const resetFilters = () => {
     setMaxPrice(highestPrice);
     setMinRating(0);
     setSortBy("default");
     setSelectedCategory("groceries");
-
-    // Fjern søgningen fra URL'en
-    router.replace(pathname);
+    setOnlyDiscounted(false);
   };
 
+  // FUSE SEARCH
+  const fuse = useMemo(() => {
+    return new Fuse(products, {
+      keys: ["title", "description", "category"],
+      threshold: 0.3,
+    });
+  }, [products]);
+
+  // SEARCH PRODUCTS
+  const searchedProducts = searchTerm.trim()
+    ? fuse.search(searchTerm).map((result) => result.item)
+    : products;
+
+  // FILTER PRODUCTS
+  const filteredProducts = searchedProducts.filter((product) => {
+    const price = Number(product.price);
+    const rating = Number(product.rating);
+    const discount = Number(product.discountPercentage);
+
+    const matchesCategory =
+      product.category === "groceries" &&
+      (selectedCategory === "all" ||
+        product.category === selectedCategory);
+
+    const matchesPrice = price <= maxPrice;
+
+    const matchesRating = rating >= minRating;
+
+    const matchesDiscount =
+      !onlyDiscounted ||
+      (Number.isFinite(discount) &&
+        Math.round(discount) > 0 &&
+        discount < 100);
+
+    return (
+      matchesCategory &&
+      matchesPrice &&
+      matchesRating &&
+      matchesDiscount
+    );
+  });
+
+  // SORT PRODUCTS
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return a.price - b.price;
+
+      case "price-high":
+        return b.price - a.price;
+
+      case "rating":
+        return b.rating - a.rating;
+
+      default:
+        return 0;
+    }
+  });
+
   return (
-    <section className="grid grid-cols-1 gap-8 md:grid-cols-[240px_1fr]">
-      <ProductFilters
-        categories={["groceries"]}
-        maxPrice={maxPrice}
-        highestPrice={highestPrice}
-        setMaxPrice={setMaxPrice}
-        minRating={minRating}
-        setMinRating={setMinRating}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        resetFilters={resetFilters}
-      />
+    <section className="flex flex-col gap-6 md:flex-row">
 
-      <div>
-        {children}
+      {/* FILTER SIDEBAR */}
+      <div className="w-full shrink-0 md:w-64">
+        <ProductFilters
+          categories={["groceries"]}
+          maxPrice={maxPrice}
+          highestPrice={highestPrice}
+          setMaxPrice={setMaxPrice}
+          minRating={minRating}
+          setMinRating={setMinRating}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          onlyDiscounted={onlyDiscounted}
+          setOnlyDiscounted={setOnlyDiscounted}
+          resetFilters={resetFilters}
+        />
+      </div>
 
-        <p className="mb-4 text-sm text-gray-500">
-          {sortedProducts.length} produkter fundet
-        </p>
+      {/* PRODUCT CATALOG */}
+      <div className="min-w-0 flex-1">
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {sortedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        {/* PRODUCT COUNT */}
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-text-secondary">
+            Showing {sortedProducts.length} products
+          </p>
         </div>
 
-        {sortedProducts.length === 0 && (
-          <p className="py-10 text-center">
-            Ingen produkter matcher dine filtre.
-          </p>
+        {sortedProducts.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {sortedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-border p-8 text-center">
+            <h3 className="mb-2 font-semibold">
+              No products found
+            </h3>
+
+            <p className="mb-4 text-sm text-text-secondary">
+              Try changing your filters or search.
+            </p>
+
+            <button
+              onClick={resetFilters}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Reset filters
+            </button>
+          </div>
         )}
       </div>
     </section>

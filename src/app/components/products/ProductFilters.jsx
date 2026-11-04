@@ -12,6 +12,8 @@ export default function ProductFilters({
   setSortBy,
   selectedCategory,
   setSelectedCategory,
+  onlyDiscounted,
+  setOnlyDiscounted,
   resetFilters,
 }) {
   return (
@@ -27,7 +29,7 @@ export default function ProductFilters({
         </button>
       </div>
 
-      {/* Category filter */}
+      {/* CATEGORY FILTER */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">
           Category
@@ -48,7 +50,25 @@ export default function ProductFilters({
         </select>
       </div>
 
-      {/* Price filter */}
+      {/* DISCOUNT FILTER */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">
+          Offers
+        </label>
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={onlyDiscounted}
+            onChange={(e) => setOnlyDiscounted(e.target.checked)}
+            className="h-4 w-4 accent-primary"
+          />
+
+          Only show discounted products
+        </label>
+      </div>
+
+      {/* PRICE FILTER */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">
           Maximum price: ${maxPrice}
@@ -69,7 +89,7 @@ export default function ProductFilters({
         </div>
       </div>
 
-      {/* Rating filter */}
+      {/* RATING FILTER */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">
           Minimum rating
@@ -87,7 +107,7 @@ export default function ProductFilters({
         </select>
       </div>
 
-      {/* Sorting */}
+      {/* SORTING */}
       <div className="space-y-2">
         <label className="block text-sm font-medium">
           Sort by
