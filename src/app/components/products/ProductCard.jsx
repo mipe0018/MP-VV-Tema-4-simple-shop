@@ -23,7 +23,21 @@ export default function ProductCard({
     state.favorites.some((item) => item.id === product.id)
   );
 
-  // Ændr antal
+  // DISCOUNT CALCULATION
+  const discountPercentage = Number(product.discountPercentage);
+
+  const roundedDiscount = Math.round(discountPercentage);
+
+  const hasDiscount =
+    Number.isFinite(discountPercentage) &&
+    roundedDiscount > 0 &&
+    discountPercentage < 100;
+
+  const discountedPrice = hasDiscount
+    ? product.price * (1 - discountPercentage / 100)
+    : product.price;
+
+  // QUANTITY FUNCTIONS
   const decreaseQuantity = () => {
     setQuantity((current) => Math.max(1, current - 1));
   };
@@ -32,7 +46,7 @@ export default function ProductCard({
     setQuantity((current) => current + 1);
   };
 
-  // Tilføj valgt antal til kurven
+  // ADD TO CART
   const handleAddToCart = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -41,10 +55,11 @@ export default function ProductCard({
     setQuantity(1);
   };
 
-  // Tilføj eller fjern favorit
+  // FAVORITES
   const handleToggleFavorite = (event) => {
     event.preventDefault();
     event.stopPropagation();
+
     toggleFavorite(product);
   };
 
@@ -68,6 +83,7 @@ export default function ProductCard({
         <Link href={`/products/${product.id}`} className="block">
           <div
             className={`
+              relative
               overflow-hidden
               bg-background-secondary
               ${compact ? "aspect-[5/3]" : "aspect-square"}
@@ -89,6 +105,24 @@ export default function ProductCard({
               <p className="p-3 text-sm text-text-secondary">
                 No image available
               </p>
+            )}
+
+            {/* DISCOUNT BADGE */}
+            {hasDiscount && roundedDiscount > 0 && (
+              <span
+                className="
+                  absolute left-2 top-2
+                  rounded-md
+                  bg-accent
+                  px-2 py-1
+                  text-[10px]
+                  font-bold
+                  text-white
+                  shadow-sm
+                "
+              >
+                -{roundedDiscount}%
+              </span>
             )}
           </div>
         </Link>
@@ -152,14 +186,34 @@ export default function ProductCard({
 
       {/* PRICE AND QUANTITY */}
       <div className="px-3 pb-3">
-        <p
-          className={`
-            mb-3 font-semibold text-primary
-            ${compact ? "text-sm" : "text-base"}
-          `}
-        >
-          ${product.price.toFixed(2)}
-        </p>
+        {/* PRODUCT PRICE */}
+        <div className="mb-3 flex flex-wrap items-baseline gap-2">
+          {hasDiscount ? (
+            <>
+              <span
+                className={`
+                  font-bold text-primary
+                  ${compact ? "text-sm" : "text-base"}
+                `}
+              >
+                ${discountedPrice.toFixed(2)}
+              </span>
+
+              <span className="text-xs text-text-secondary line-through">
+                ${product.price.toFixed(2)}
+              </span>
+            </>
+          ) : (
+            <span
+              className={`
+                font-semibold text-primary
+                ${compact ? "text-sm" : "text-base"}
+              `}
+            >
+              ${product.price.toFixed(2)}
+            </span>
+          )}
+        </div>
 
         {/* QUANTITY SELECTOR */}
         <div
