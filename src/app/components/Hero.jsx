@@ -237,24 +237,24 @@ export default function Hero() {
               <button
                 type="button"
                 className="
-                  grid
-                  shrink-0
-                  place-items-center
-                  w-11 h-11
-                  rounded-full
-                  border border-border
-                  bg-background-card
-                  text-primary
-                  shadow-sm
-                  transition-all duration-200
-                  hover:bg-primary
-                  hover:text-white
-                  hover:scale-105
-                  active:scale-95
-                  focus-visible:outline-2
-                  focus-visible:outline-foreground
-                  focus-visible:outline-offset-2
-                "
+  grid
+  shrink-0
+  place-items-center
+  w-11 h-11
+  rounded-full
+  border border-primary
+  bg-primary
+  text-white
+  shadow-sm
+  transition-all duration-200
+  hover:!bg-white
+  hover:!text-primary
+  hover:scale-105
+  active:scale-95
+  focus-visible:outline-2
+  focus-visible:outline-foreground
+  focus-visible:outline-offset-2
+"
                 onClick={() => scrollProducts(-1)}
                 aria-label="Previous products"
               >
@@ -304,24 +304,24 @@ export default function Hero() {
               <button
                 type="button"
                 className="
-                  grid
-                  shrink-0
-                  place-items-center
-                  w-11 h-11
-                  rounded-full
-                  border border-border
-                  bg-background-card
-                  text-primary
-                  shadow-sm
-                  transition-all duration-200
-                  hover:bg-primary
-                  hover:text-white
-                  hover:scale-105
-                  active:scale-95
-                  focus-visible:outline-2
-                  focus-visible:outline-foreground
-                  focus-visible:outline-offset-2
-                "
+  grid
+  shrink-0
+  place-items-center
+  w-11 h-11
+  rounded-full
+  border border-primary
+  bg-primary
+  text-white
+  shadow-sm
+  transition-all duration-200
+  hover:!bg-white
+  hover:!text-primary
+  hover:scale-105
+  active:scale-95
+  focus-visible:outline-2
+  focus-visible:outline-foreground
+  focus-visible:outline-offset-2
+"
                 onClick={() => scrollProducts(1)}
                 aria-label="Next products"
               >
