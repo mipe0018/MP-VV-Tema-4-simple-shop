@@ -22,9 +22,12 @@ export default async function ProductsPage({ searchParams }) {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
-<ProductCatalog products={products} query={query}>
-  <ProductHero />
-</ProductCatalog>
+      <ProductCatalog
+        products={products}
+        searchTerm={query}
+      >
+        <ProductHero />
+      </ProductCatalog>
     </main>
   );
 }
